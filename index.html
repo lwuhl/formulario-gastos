@@ -28,28 +28,44 @@
   </form>
   <p id="mensaje"></p>
 
-  <script>
-    const form = document.getElementById('gastoForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const data = new FormData(form);
-      const jsonData = {};
-      data.forEach((value, key) => jsonData[key] = value);
+ <script>
+  const form = document.getElementById('gastoForm');
+  const mensaje = document.getElementById('mensaje');
 
-      const response = await fetch('https://script.google.com/macros/s/AKfycbw1ylvUtPgNLXII-JX0KdWM5HJQOhyIHSd7H0E-Z9kJSkKibQBZv9O9dmcEMk9DNJcK/exec', {
-        method: 'POST',
-        body: JSON.stringify(jsonData),
-        headers: { 'Content-Type': 'application/json' }
-      });
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-      if (response.ok) {
-        document.getElementById('mensaje').textContent = '¡Gasto cargado!';
+    const formData = new FormData(form);
+
+    mensaje.textContent = '⏳ Enviando...';
+
+    try {
+      const response = await fetch(
+        'https://script.google.com/macros/s/AKfycbw1ylvUtPgNLXII-JX0KdWM5HJQOhyIHSd7H0E-Z9kJSkKibQBZv9O9dmcEMk9DNJcK/exec',
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+
+      const text = await response.text();
+      console.log('Respuesta:', text);
+
+      if (text.includes("OK")) {
+        mensaje.textContent = '✅ ¡Gasto cargado!';
         form.reset();
       } else {
-        document.getElementById('mensaje').textContent = 'Error al enviar gasto';
+        mensaje.textContent = '⚠️ Hubo un problema al guardar.';
       }
-    });
-  </script>
+
+    } catch (error) {
+      console.error('Error de red:', error);
+      mensaje.textContent = '❌ Error de red o conexión.';
+    }
+  });
+</script>
+
 </body>
 </html>
+
 
